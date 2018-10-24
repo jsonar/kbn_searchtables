@@ -5,9 +5,9 @@ import 'ui/agg_table';
 import 'ui/agg_table/agg_table_group';
 import { VisFactoryProvider } from 'ui/vis/vis_factory';
 import { CATEGORY } from 'ui/vis/vis_category';
-import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
 import searchtableVisTemplate from 'plugins/kbn_searchtables/kbn_searchtables.html';
 import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
+import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
 import image from './images/icon-table.svg';
 // we need to load the css ourselves
 
