@@ -57,17 +57,37 @@ module.controller('KbnSearchTablesVisController', function ($timeout, $scope) {
       }
       //Logic to search
       var newrows = [];
+
       for (var i = 0; i < tableGroups.tables[0].rows_default.length; i++) {
-        for (var j = 0; j < tableGroups.tables[0].rows_default[i].length; j++) {
-          const rowKey = tableGroups.tables[0].rows_default[i][j].key;
+        const row = tableGroups.tables[0].rows_default[i];
+
+        for (var j = 0; j < row.length; j++) {
+          const cell = row[j];
+
+          const agg = cell.aggConfig;
+          const key = cell.key;
+
+          const field = agg.getField();
 
           // Polyfill for lodash@v4.x
           // @see https://github.com/lodash/lodash/blob/4.17.10/lodash.js#L11972
-          const isRowKeyNil = rowKey == null;
-          if (!isRowKeyNil) {
-            const rowKeyStr = `${rowKey}`.toLowerCase();
-            if (rowKeyStr.includes(inputSearch.toLowerCase())) {
-              newrows.push(tableGroups.tables[0].rows_default[i]);
+          const isKeyNull = key == null;
+
+          if (!isKeyNull) {
+            /**
+             * Since the user will be searching for what they *see*, not the
+             * raw data returned by ES, we have to format the key before
+             * comparing it to the query.
+             */
+            let formattedKey = `${key}`.toLowerCase();
+
+            if(field && field.type == 'date') {
+              const formatter = agg.fieldFormatter('text');
+              formattedKey = formatter(key);
+            }
+
+            if (formattedKey.includes(inputSearch.toLowerCase())) {
+              newrows.push(row);
               break;
             }
           }
