@@ -57,7 +57,7 @@ module.controller('KbnSearchTablesVisController', function ($timeout, $scope) {
       }
       //Logic to search
       var newrows = [];
-      
+
       for (var i = 0; i < tableGroups.tables[0].rows_default.length; i++) {
         const row = tableGroups.tables[0].rows_default[i];
 
