@@ -1,5 +1,6 @@
 import { uiModules } from 'ui/modules';
 import { assign } from 'lodash';
+import { filterTableBySearch } from '../common/table_filter.js';
 
 
 // get the kibana/kbn_searchtables module, and make sure that it requires the "kibana" module if it
@@ -39,7 +40,7 @@ module.controller('KbnSearchTablesVisController', function ($timeout, $scope) {
     let hasSomeRows = $scope.hasSomeRows = null;
 
     if (esResponse) {
-      //IMPORTANT COPY THE OBJECT
+      //IMPORTANT COPY THE OBJECT SO WE CAN CHANGE IT
       tableGroups = angular.extend(esResponse);
 
       // Check if exist
@@ -48,55 +49,26 @@ module.controller('KbnSearchTablesVisController', function ($timeout, $scope) {
         return;
       }
 
-      if (!tableGroups.tables[0].rows_default) {
-        tableGroups.tables[0].rows_default = tableGroups.tables[0].rows;
-      }
       //////////////////////////
       if (!inputSearch) {
         $scope.config.searchKeyword = inputSearch = '';
       }
-      //Logic to search
-      var newrows = [];
 
-      for (var i = 0; i < tableGroups.tables[0].rows_default.length; i++) {
-        const row = tableGroups.tables[0].rows_default[i];
+      const aggs = $scope.visState.aggs;
+      const aggsUsed = aggs.filter(agg => agg.enabled);
+      const hasBuckets = aggsUsed.some(agg => agg.schema === 'bucket');
+      const queryNotEmpty = inputSearch.length > 0;
 
-        for (var j = 0; j < row.length; j++) {
-          const cell = row[j];
-
-          const agg = cell.aggConfig;
-          const key = cell.key;
-
-          const field = agg.getField();
-
-          // Polyfill for lodash@v4.x
-          // @see https://github.com/lodash/lodash/blob/4.17.10/lodash.js#L11972
-          const isKeyNull = key == null;
-
-          if (!isKeyNull) {
-            /**
-             * Since the user will be searching for what they *see*, not the
-             * raw data returned by ES, we have to format the key before
-             * comparing it to the query.
-             */
-            let formattedKey = `${key}`.toLowerCase();
-
-            if(field && field.type == 'date') {
-              const formatter = agg.fieldFormatter('text');
-              formattedKey = formatter(key);
-            }
-
-            if (formattedKey.includes(inputSearch.toLowerCase())) {
-              newrows.push(row);
-              break;
-            }
-          }
-        }
+      // We only filter the table when the user has entered at least
+      // one search parameter (either by defining some buckets or using
+      // the search bar). Otherwise, the user might be surprised by an
+      // empty table when no buckets are defined and they haven't
+      // searched for anything.
+      if (hasBuckets || queryNotEmpty) {
+        filterTableBySearch(tableGroups, inputSearch);
       }
 
-      tableGroups.tables[0].rows = newrows;
-      /////
-
+      // Check if we have any rows left after filtering
       hasSomeRows = tableGroups.tables.some(function haveRows(table) {
         if (table.tables) return table.tables.some(haveRows);
         return table.rows.length > 0;
