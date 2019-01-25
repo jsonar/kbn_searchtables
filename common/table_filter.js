@@ -25,7 +25,8 @@ function isBucket(field) {
 }
 
 function fieldMatches(field, search) {
-  const fieldLower = field.toString().toLowerCase();
+  const fieldFormatter = field.aggConfig.fieldFormatter('text');
+  const fieldLower = fieldFormatter(field.value).toLowerCase();
   const searchLower = search.toLowerCase();
   return fieldLower.includes(searchLower);
 }
