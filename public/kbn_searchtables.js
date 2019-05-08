@@ -4,10 +4,9 @@ import 'plugins/kbn_searchtables/kbn_searchtables_params';
 import 'ui/agg_table';
 import 'ui/agg_table/agg_table_group';
 import { VisFactoryProvider } from 'ui/vis/vis_factory';
-import { CATEGORY } from 'ui/vis/vis_category';
 import searchtableVisTemplate from 'plugins/kbn_searchtables/kbn_searchtables.html';
 import { VisTypesRegistryProvider } from 'ui/registry/vis_types';
-import { VisSchemasProvider } from 'ui/vis/editors/default/schemas';
+import { Schemas } from 'ui/vis/editors/default/schemas';
 import image from './images/icon-table.svg';
 // we need to load the css ourselves
 
@@ -23,7 +22,6 @@ VisTypesRegistryProvider.register(TableVisTypeProvider);
 // define the TableVisType
 function TableVisTypeProvider(Private) {
   const VisFactory = Private(VisFactoryProvider);
-  const Schemas = Private(VisSchemasProvider);
 
   // define the TableVisController which is used in the template
   // by angular's ng-controller directive
@@ -36,7 +34,6 @@ function TableVisTypeProvider(Private) {
     title: 'Searchtables',
     image,
     description: 'Display values in a table and an input for search items without applying filters',
-    category: CATEGORY.DATA,
     visConfig: {
       defaults: {
         perPage: 10,
