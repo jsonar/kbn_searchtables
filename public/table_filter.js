@@ -13,20 +13,15 @@ export function filterTableBySearch(table, search) {
 
 function makeTableFilter(search) {
   const fieldsMatch = makeFieldMatcher(search);
-  return row => Object.values(row).some(fieldsMatch);
+  return row => Object.values(row).some(cell => fieldsMatch(cell));
 }
 
 function makeFieldMatcher(search) {
-  return field => isBucket(field) && fieldMatches(field, search);
-}
-
-function isBucket(field) {
-  return field.type === 'bucket';
+  return field => fieldMatches(field, search);
 }
 
 function fieldMatches(field, search) {
-  const fieldFormatter = field.aggConfig.fieldFormatter('text');
-  const fieldLower = fieldFormatter(field.value).toLowerCase();
+  const fieldLower = String(field).toLowerCase();
   const searchLower = search.toLowerCase();
   return fieldLower.includes(searchLower);
 }
@@ -34,7 +29,7 @@ function fieldMatches(field, search) {
 function filterTable(table, filter) {
   if (table.tables) {
     table.tables.forEach(subtable => filterTable(subtable, filter));
-  } else if (table.rows) {
-    table.rows = table.rows.filter(filter);
+  } else if (table.rows && table.rows.length) {
+    table.rows = table.rows.filter((row) => filter(row, table.columns));
   }
 }
