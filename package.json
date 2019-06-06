@@ -20,6 +20,6 @@
     "test:server": "plugin-helpers test:server",
     "test:browser": "plugin-helpers test:browser",
     "build": "plugin-helpers build",
-    "postinstall": "plugin-helpers postinstall"
+    "postinstall": "true"
   }
 }
